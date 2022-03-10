@@ -1,4 +1,3 @@
-import { BigInt } from "@graphprotocol/graph-ts"
 import {
   Contract,
   DataFeedFunded,
@@ -7,30 +6,13 @@ import {
   TipAdded,
   TipClaimed
 } from "../generated/Contract/Contract"
-import { ExampleEntity } from "../generated/schema"
+import { DataFeedFundedEntity, NewDataFeedEntity, OneTimeTipClaimedEntity, TipAddedEntity, TipClaimedEntity } from "../generated/schema"
 
 export function handleDataFeedFunded(event: DataFeedFunded): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
-
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
-
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
-  }
-
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  entity._queryId = event.params._queryId
-  entity._feedId = event.params._feedId
-
-  // Entities can be written to the store with `.save()`
+  let entity = new DataFeedFundedEntity(event.block.timestamp.toHex())
+  entity._queryId = event.params._queryId;
+  entity._feedId = event.params._feedId;
+  entity._amount = event.params._amount;
   entity.save()
 
   // Note: If a handler doesn't require existing field values, it is faster
@@ -69,10 +51,37 @@ export function handleDataFeedFunded(event: DataFeedFunded): void {
   // - contract.tips(...)
 }
 
-export function handleNewDataFeed(event: NewDataFeed): void {}
+export function handleNewDataFeed(event: NewDataFeed): void {
+  let entity = new NewDataFeedEntity(event.block.timestamp.toHex())
+  entity._token = event.params._token;
+  entity._queryId = event.params._queryId;
+  entity._feedId = event.params._feedId;
+  entity._queryData = event.params._queryData;
+  entity.save()
+}
 
-export function handleOneTimeTipClaimed(event: OneTimeTipClaimed): void {}
+export function handleOneTimeTipClaimed(event: OneTimeTipClaimed): void {
+  let entity = new OneTimeTipClaimedEntity(event.block.timestamp.toHex())
+  entity._queryId = event.params._queryId;
+  entity._token = event.params._token;
+  entity._amount = event.params._amount;
+  entity.save()
+}
 
-export function handleTipAdded(event: TipAdded): void {}
+export function handleTipAdded(event: TipAdded): void {
+  let entity = new TipAddedEntity(event.block.timestamp.toHex())
+  entity._token = event.params._token;
+  entity._queryId = event.params._queryId;
+  entity._amount = event.params._amount;
+  entity._queryData = event.params._queryData;
+  entity.save()
+}
 
-export function handleTipClaimed(event: TipClaimed): void {}
+export function handleTipClaimed(event: TipClaimed): void {
+  let entity = new TipClaimedEntity(event.block.timestamp.toHex())
+  entity._feedId = event.params._feedId;
+  entity._queryId = event.params._queryId;
+  entity._token = event.params._token;
+  entity._amount = event.params._amount;
+  entity.save()
+}
